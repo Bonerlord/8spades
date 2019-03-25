@@ -1092,6 +1092,91 @@ namespace spades {
 			RepositionPlayer(position);
 		}
 
+		void Player::BoxClipMoveNoClimb(float fsynctics) {
+			SPADES_MARK_FUNCTION();
+
+			float f = fsynctics * 32.f;
+			float nx = f * velocity.x + position.x;
+			float ny = f * velocity.y + position.y;
+			float offset, m;
+			if (input.crouch) {
+				offset = .45f;
+				m = .9f;
+			} else {
+				offset = .9f;
+				m = 1.35f;
+			}
+
+			float nz = position.z + offset;
+
+			float z;
+			GameMap *map = world->GetMap();
+
+			if (velocity.x < 0.f)
+				f = -0.45f;
+			else
+				f = 0.45f;
+
+			z = m;
+
+			while (z >= -1.36f && !map->ClipBox(nx + f, position.y - .45f, nz + z) &&
+			       !map->ClipBox(nx + f, position.y + .45f, nz + z))
+				z -= 0.9f;
+			if (z < -1.36f)
+				position.x = nx;
+			else {
+				velocity.x = 0.f;
+			}
+
+			if (velocity.y < 0.f)
+				f = -0.45f;
+			else
+				f = 0.45f;
+
+			z = m;
+
+			while (z >= -1.36f && !map->ClipBox(position.x - .45f, ny + f, nz + z) &&
+			       !map->ClipBox(position.x + .45f, ny + f, nz + z))
+				z -= 0.9f;
+			if (z < -1.36f)
+				position.y = ny;
+			else {
+				velocity.y = 0.f;
+			}
+
+			{
+				if (velocity.z < 0.f)
+					m = -m;
+				nz += velocity.z * fsynctics * 32.f;
+			}
+
+			airborne = true;
+			if (map->ClipBox(position.x - .45f, position.y - .45f, nz + m) ||
+			    map->ClipBox(position.x - .45f, position.y + .45f, nz + m) ||
+			    map->ClipBox(position.x + .45f, position.y - .45f, nz + m) ||
+			    map->ClipBox(position.x + .45f, position.y + .45f, nz + m)) {
+				if (velocity.z >= 0.f) {
+					wade = position.z > 61.f;
+					airborne = false;
+				}
+				velocity.z = 0.f;
+			} else {
+				position.z = nz - offset;
+			}
+
+			//Stuck prevention check, zip upwards if players feet are below ground (from uncrouching in the air)
+			float zFoot = position.z + offset + m;//nz + m + 0.01f;
+			//fprintf(stderr,"ZPOS: '%f'\tZFOOT: '%f'\n", position.z, zFoot);
+			if( map->ClipBox(position.x - .45f, position.y - .45f, zFoot) ||
+			    map->ClipBox(position.x - .45f, position.y + .45f, zFoot) ||
+			    map->ClipBox(position.x + .45f, position.y - .45f, zFoot) ||
+			    map->ClipBox(position.x + .45f, position.y + .45f, zFoot) ) {
+					position.z = floor(zFoot) - offset - m - 0.01f;
+			}
+
+			RepositionPlayer(position);
+		}
+
 		bool Player::IsOnGroundOrWade() {
 			return ((velocity.z >= 0.f && velocity.z < .017f) && !airborne);
 		}
@@ -1129,14 +1214,17 @@ namespace spades {
 			if ((input.moveForward || input.moveBackward) && (input.moveRight || input.moveLeft))
 				f /= sqrtf(2.f);
 
-			// looking up or down should alter speed
-			const float maxVertLookSlowdown = 0.9f;
-			const float vertLookSlowdownStart = 0.65f; // about 40 degrees
-			float slowdownByVertLook =
-			  std::max(std::abs(GetFront().z) - vertLookSlowdownStart, 0.0f) /
-			  (1.0f - vertLookSlowdownStart) * maxVertLookSlowdown;
+			Vector3 front = GetFront2D();
+			if( ! IS8SPADES ) {
+				// looking up or down should alter speed
+				const float maxVertLookSlowdown = 0.9f;
+				const float vertLookSlowdownStart = 0.65f; // about 40 degrees
+				float slowdownByVertLook =
+				  std::max(std::abs(GetFront().z) - vertLookSlowdownStart, 0.0f) /
+				  (1.0f - vertLookSlowdownStart) * maxVertLookSlowdown;
 
-			Vector3 front = GetFront2D() * (1.0f - slowdownByVertLook);
+				front *= (1.0f - slowdownByVertLook);
+		  }
 			Vector3 left = GetLeft();
 
 			if (input.moveForward) {
@@ -1170,7 +1258,12 @@ namespace spades {
 			velocity.y /= f;
 
 			float f2 = velocity.z;
-			BoxClipMove(fsynctics);
+			if( IS8SPADES ) {
+				BoxClipMoveNoClimb(fsynctics);
+			}
+			else {
+				BoxClipMove(fsynctics);
+		  }
 
 			// hit ground
 			if (velocity.z == 0.f && (f2 > FALL_SLOW_DOWN)) {

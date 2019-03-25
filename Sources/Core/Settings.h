@@ -25,7 +25,10 @@
 #include <type_traits>
 #include <vector>
 
+#define IS8SPADES true
+
 namespace spades {
+
 	enum class SettingItemFlags { None = 0 };
 
 	inline SettingItemFlags operator|(SettingItemFlags lhs, SettingItemFlags rhs)

@@ -127,6 +127,7 @@ namespace spades {
 			void RepositionPlayer(const Vector3 &);
 			void MovePlayer(float fsynctics);
 			void BoxClipMove(float fsynctics);
+			void BoxClipMoveNoClimb(float fsynctics);
 
 			void UseSpade();
 			void DigWithSpade();

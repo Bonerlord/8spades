@@ -423,7 +423,9 @@ namespace spades {
 					} else if (CheckKey(cg_keyCrouch, name)) {
 						playerInput.crouch = down;
 					} else if (CheckKey(cg_keySprint, name)) {
-						playerInput.sprint = down;
+						if( ! IS8SPADES ){
+							playerInput.sprint = down;
+						}
 					} else if (CheckKey(cg_keySneak, name)) {
 						playerInput.sneak = down;
 					} else if (CheckKey(cg_keyJump, name)) {
