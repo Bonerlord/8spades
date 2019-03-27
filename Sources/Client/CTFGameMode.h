@@ -35,8 +35,10 @@ namespace spades {
 				unsigned int carrier;
 				Vector3 flagPos;
 				Vector3 basePos;
+				float lastCapTime = -60.0f;
 			};
 			int captureLimit;
+			float enemyRevealDuration = 60.0f;
 
 		private:
 			Team teams[2];

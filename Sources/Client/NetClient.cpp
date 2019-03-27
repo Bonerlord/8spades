@@ -1439,6 +1439,7 @@ namespace spades {
 					GetWorld()->GetPlayerPersistent(p->GetId()).kills += 10;
 					ctf->GetTeam(p->GetTeamId()).hasIntel = false;
 					ctf->GetTeam(p->GetTeamId()).score++;
+					ctf->GetTeam(p->GetTeamId()).lastCapTime = GetWorld()->GetTime();
 
 					bool winning = reader.ReadByte() != 0;
 					if (winning)
