@@ -549,57 +549,57 @@ namespace spades {
 			if (mode && IGameMode::m_CTF == mode->ModeType()) {
 				CTFGameMode *ctf = static_cast<CTFGameMode *>(mode);
 
-				//draw enemy players if time since friendly intel cap < reveal enemyRevealDuration
-				float lastCapTime = ctf->GetTeam(localPlayer.GetTeamId()).lastCapTime;
-				fprintf(stderr,"Lastcap: '%.2f'\CurrentTime: '%.2f'\n", lastCapTime, world->GetTime());
-				if( world->GetTime() - lastCapTime < ctf->enemyRevealDuration ){
-					fprintf(stderr,"#####SHOWING ENEMY#####\n");
-					for (int i = 0; i < world->GetNumPlayerSlots(); i++) {
-						Player *p = world->GetPlayer(i);
-						if (!p || !p->IsAlive()) {
-							// The player is non-existent or dead
-							continue;
-						}
-						if (!localPlayer.IsSpectator() && localPlayer.GetTeamId() == p->GetTeamId()) {
-							continue;
-						}
-
-						Vector3 front = p->GetFront2D();
-						float ang = atan2(front.x, -front.y);
-						if (p == &focusPlayer && p->IsSpectator()) {
-							ang = focusPlayerAngle;
-						}
-
-						// always use team colour
-						IntVector3 teamColor = world->GetTeam(p->GetTeamId()).color;
-						Vector4 teamColorF = ModifyColor(teamColor);
-						renderer->SetColorAlphaPremultiplied(teamColorF);
-
-						// use a different icon in minimap according to weapon of player
-						if (iconMode) {
-							WeaponType weapon = p->GetWeaponType();
-							if (weapon == WeaponType::SMG_WEAPON) {
-								DrawIcon(p->IsSpectator() ? client->freeCameraState.position
-								                                  : p->GetPosition(),
-								         playerSMG, ang);
+				if( IS8SPADES ) {
+					//draw enemy players if time since friendly intel cap < enemyRevealDuration
+					float lastCapTime = ctf->GetTeam(localPlayer.GetTeamId()).lastCapTime;
+					if( world->GetTime() - lastCapTime < ctf->enemyRevealDuration ){
+						for (int i = 0; i < world->GetNumPlayerSlots(); i++) {
+							Player *p = world->GetPlayer(i);
+							if (!p || !p->IsAlive()) {
+								// The player is non-existent or dead
+								continue;
 							}
-							else if (weapon == WeaponType::RIFLE_WEAPON) {
-								DrawIcon(p->IsSpectator() ? client->freeCameraState.position
-								                                  : p->GetPosition(),
-								         playerRifle, ang);
+							if (!localPlayer.IsSpectator() && localPlayer.GetTeamId() == p->GetTeamId()) {
+								continue;
 							}
-							else if (weapon == WeaponType::SHOTGUN_WEAPON) {
-								DrawIcon(p->IsSpectator() ? client->freeCameraState.position
-								                                  : p->GetPosition(),
-								         playerShotgun, ang);
-							}
-						} else { // draw normal color
-							DrawIcon(p == &focusPlayer ? focusPlayerPos : p->GetPosition(),
-							         playerIcon, ang);
-						}
 
+							Vector3 front = p->GetFront2D();
+							float ang = atan2(front.x, -front.y);
+							if (p == &focusPlayer && p->IsSpectator()) {
+								ang = focusPlayerAngle;
+							}
+
+							// always use team colour
+							IntVector3 teamColor = world->GetTeam(p->GetTeamId()).color;
+							Vector4 teamColorF = ModifyColor(teamColor);
+							renderer->SetColorAlphaPremultiplied(teamColorF);
+
+							// use a different icon in minimap according to weapon of player
+							if (iconMode) {
+								WeaponType weapon = p->GetWeaponType();
+								if (weapon == WeaponType::SMG_WEAPON) {
+									DrawIcon(p->IsSpectator() ? client->freeCameraState.position
+									                                  : p->GetPosition(),
+									         playerSMG, ang);
+								}
+								else if (weapon == WeaponType::RIFLE_WEAPON) {
+									DrawIcon(p->IsSpectator() ? client->freeCameraState.position
+									                                  : p->GetPosition(),
+									         playerRifle, ang);
+								}
+								else if (weapon == WeaponType::SHOTGUN_WEAPON) {
+									DrawIcon(p->IsSpectator() ? client->freeCameraState.position
+									                                  : p->GetPosition(),
+									         playerShotgun, ang);
+								}
+							} else { // draw normal color
+								DrawIcon(p == &focusPlayer ? focusPlayerPos : p->GetPosition(),
+								         playerIcon, ang);
+							}
+
+						}
 					}
-				}
+			  }
 
 
 				Handle<IImage> intelIcon = renderer->RegisterImage("Gfx/Map/Intel.png");

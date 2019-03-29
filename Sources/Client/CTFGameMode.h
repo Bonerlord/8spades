@@ -22,6 +22,8 @@
 #include "IGameMode.h"
 #include <Core/Math.h>
 
+#define ENEMY_REVEAL_CTF 60.0f
+
 namespace spades {
 	namespace client {
 		class World;
@@ -35,10 +37,10 @@ namespace spades {
 				unsigned int carrier;
 				Vector3 flagPos;
 				Vector3 basePos;
-				float lastCapTime = -60.0f;
+				float lastCapTime = -ENEMY_REVEAL_CTF;
 			};
 			int captureLimit;
-			float enemyRevealDuration = 60.0f;
+			float enemyRevealDuration = ENEMY_REVEAL_CTF;
 
 		private:
 			Team teams[2];
