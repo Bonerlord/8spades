@@ -1,6 +1,6 @@
 # 8 Of Spades
 
-An early in-development fork of [Openspades](https://github.com/yvt/openspades) for /v/, to bring the game closer to the 0.52 trench warfare experience.
+An early in-development fork of [Openspades](https://github.com/yvt/openspades) for /v/, to bring the game closer to the 0.54 trench warfare experience.
 
 ## What's the plan?
 
@@ -16,8 +16,8 @@ Once work on the server code begins, the client and server should both use a uni
 * Sprinting has been removed
 * Autoclimb has been removed
 * Movement slowdown when looking downwards has been removed
-### Planned changes for v1:
 * Intel capture reveals enemies on map for 60 seconds, like older versions
+### Planned changes for v1 server-side:
 * Balanced weapon damage
 * Increased grenade block damage
 * Improved player spawns
